@@ -30,7 +30,7 @@ const CreateCampaign = () => {
 
     // console.log(form);
 
-    // checks if the image exist before creating a campaign
+    // checks if the image exist before creating a campaign ie the image a user pass is a valid url
     checkIfImage(form.image, async (exists) => {
       if (exists) {
         // before creating campaign
@@ -38,7 +38,7 @@ const CreateCampaign = () => {
         await createCampaign({
           ...form,
           target: ethers.utils.parseUnits(form.target, 18),
-        });
+        }); // Hint: here we changed the target ie amount to wei
 
         // after creating campaign
         setIsLoading(false);
@@ -80,7 +80,7 @@ const CreateCampaign = () => {
           />
 
           <FormField
-            labelName="Campaign title * "
+            labelName="Campaign Title * "
             placeholder="Write a title"
             inputType="text"
             value={form.title}
@@ -89,7 +89,7 @@ const CreateCampaign = () => {
         </div>
 
         <FormField
-          labelName="Story"
+          labelName="Story *"
           placeholder="Write your story"
           isTextArea
           value={form.description}
