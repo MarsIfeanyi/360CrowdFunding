@@ -22,7 +22,7 @@ export const StateContextProvider = ({ children }) => {
   const { mutateAsync: createCampaign } = useContractWrite(
     contract,
     "createCampaign"
-  ); // here we pass in the contract and the specify the name of our write function...This allows us to call the function and create campaign with all the details... createCampaign is a  function (write function) defined in the smart contract.
+  ); // here we pass in the contract and the specify the name of our write function...This allows us to call the function and create campaign with all the details... createCampaign is a function (write function) defined in the smart contract.
 
   // connecting to smart wallet
   const address = useAddress();
@@ -30,26 +30,99 @@ export const StateContextProvider = ({ children }) => {
 
   const publishCampaign = async (form) => {
     try {
-      const data = await createCampaign([
-        address,
-        form.title,
-        form.description,
-        form.target,
-        new Date(form.deadline).getTime(),
-        form.image,
-      ]);
-
-      console.log("contract call success", data);
+      const data = await createCampaign({
+        args: [
+          address, //owner
+          form.title,
+          form.description,
+          form.target,
+          new Date(form.deadline).getTime(),
+          form.image,
+        ],
+      });
+      console.log("contract call success ", data);
     } catch (error) {
-      console.log("contract call failure", error);
+      console.log("contract call failed ", error);
     }
+  };
+
+  // function that gets the campaign... Hint:This is a  "Read" function.
+  const getCampaigns = async () => {
+    const campaigns = await contract.call("getCampaigns");
+
+    // console.log(campaigns);
+
+    // transforming the data from the createCampaign to human readable form
+    const parsedCampaigns = campaigns.map((campaign, i) => ({
+      owner: campaign.owner,
+      title: campaign.title,
+      description: campaign.description,
+      target: ethers.utils.formatEther(campaign.target.toString()),
+      deadline: campaign.deadline.toNumber(),
+      amountCollected: ethers.utils.formatEther(
+        campaign.amountCollected.toString()
+      ),
+      image: campaign.image,
+      pId: i,
+    }));
+
+    // console.log(parsedCampaigns);
+
+    return parsedCampaigns;
+  };
+
+  // function that gets all campaigns for the currently logged in user or address ie the "Profile" Dashboard... This is a "Read" Function.
+  const getUserCampaigns = async () => {
+    const allCampaigns = await getCampaigns();
+
+    // checks if the owner is equal to the logged in address.
+    const filteredCampaigns = allCampaigns.filter(
+      (campaign) => campaign.owner === address
+    ); // if campaign.owner === currently logged in account, only then keep it
+
+    return filteredCampaigns;
+  };
+
+  // function that allows user to donate to campaign... This is a "Write" function.
+  const donate = async (pId, amount) => {
+    const data = await contract.call("donateToCampaign", pId, {
+      value: ethers.utils.parseEther(amount),
+    });
+
+    return data;
+  };
+
+  // function that get the donations to a campaign... This is a "Read" function
+  const getDonations = async (pId) => {
+    const donations = await contract.call("getDonators", pId);
+    const numberOfDonations = donations[0].length;
+
+    const parsedDonations = [];
+
+    for (let i = 0; i < numberOfDonations; i++) {
+      parsedDonations.push({
+        donator: donations[0][i],
+        donation: ethers.utils.formatEther(donations[1][i].toString()),
+      });
+    }
+
+    return parsedDonations;
   };
 
   return (
     // value contains everything you want to share across your app
     <StateContext.Provider
-      // hint: we reassign publishCampaign to be called "createCampaign". Thus in the frontend we will be calling "createCampaign" instead of publishCampaign.
-      value={{ address, contract, connect, createCampaign: publishCampaign }}
+      // hint: createCampaign: publishCampaign = Renaming publishCampaign to "createCampaign". Thus in the frontend we will be calling "createCampaign" instead of publishCampaign.
+      value={{
+        address,
+        contract,
+        connect,
+        createCampaign: publishCampaign,
+        getCampaigns,
+        getUserCampaigns,
+        donate,
+        getDonations,
+      }}
     >
       {children}
     </StateContext.Provider>
