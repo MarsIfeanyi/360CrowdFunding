@@ -1,5 +1,6 @@
 import React from "react";
 
+// all properties (props) are defined in the "createCampaign" Component.
 const FormField = ({
   labelName,
   placeholder,
@@ -10,13 +11,14 @@ const FormField = ({
 }) => {
   return (
     <label className="flex-1 w-full flex flex-col">
+      {/* If there is labelName, then render the labelName... Conditional Rendering */}
       {labelName && (
         <span className="font-epilogue font-medium text-[14px] leading-[22px] text-[#808191] mb-[10px] ">
           {labelName}
         </span>
       )}
 
-      {/* if it is TextArea, then use the textarea tag, else use the input tag */}
+      {/* if it is TextArea, then use the textarea tag, else use the input tag... Ternary operator for conditional rendering*/}
       {isTextArea ? (
         <textarea
           required
