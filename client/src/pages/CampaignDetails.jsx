@@ -31,6 +31,7 @@ const CampaignDetails = () => {
     if (contract) fetchDonators();
   }, [contract, address]);
 
+  // We are going to make contract call here.
   const handleDonate = async () => {
     setIsLoading(true);
 
