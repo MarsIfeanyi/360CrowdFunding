@@ -83,7 +83,7 @@ export const StateContextProvider = ({ children }) => {
     return filteredCampaigns;
   };
 
-  // function that allows user to donate to campaign... This is a "Write" function.
+  // function that allows user to donate to campaign... This is a "Write" function(You can verify this using the thirdweb interface) ... pId = Project Id.
   const donate = async (pId, amount) => {
     const data = await contract.call("donateToCampaign", pId, {
       value: ethers.utils.parseEther(amount),
