@@ -84,17 +84,24 @@ export const StateContextProvider = ({ children }) => {
   };
 
   // function that allows user to donate to campaign... This is a "Write" function(You can verify this using the thirdweb interface) ... pId = Project Id.
+  // const donate = async (pId, amount) => {
+  //   const data = await contract.call("donateToCampaign", pId, {
+  //     value: ethers.utils.parseEther(amount),
+  //   });
+
+  //   return data;
+  // };
+
   const donate = async (pId, amount) => {
-    const data = await contract.call("donateToCampaign", pId, {
+    const data = await contract.call("donateToCampaign", [pId], {
       value: ethers.utils.parseEther(amount),
     });
-
     return data;
   };
 
   // function that get the donations to a campaign... This is a "Read" function
   const getDonations = async (pId) => {
-    const donations = await contract.call("getDonators", pId);
+    const donations = await contract.call("getDonators", [pId]);
     const numberOfDonations = donations[0].length;
 
     const parsedDonations = [];
